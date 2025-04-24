@@ -1,17 +1,20 @@
-from fastapi import FastAPI, HTTPException
+import json
+from fastapi import FastAPI, Form, File, UploadFile
 from pydantic import BaseModel
-from store_db import store_context_cache
-from retrieve_db import get_session, get_cache_by_video
-import uuid
-import datetime
+from retrieve_db import get_session, store_conversation
+from main import llm_response
+from typing import Optional
 
 app = FastAPI()
 
-# Request models
-class Query(BaseModel):
+class SessionData(BaseModel):
     session_id: int
-    query: str
+    conversation_history: str
 
+
+@app.get("/")
+async def root():
+    return {"message": "Backend started to run"}
 
 @app.get("/session/{session_id}")
 async def fetch_session(session_id: int):
@@ -19,37 +22,28 @@ async def fetch_session(session_id: int):
     Called first to load full conversation history.
     """
     history = get_session(session_id)
-    if history is None:
-        '''
-            We can create a new session here if needed with empty conversation history
-        '''
-        raise HTTPException(status_code=404, detail="Session not found")
     
     return {"session_id": session_id, "conversation_history": history}
 
+@app.post("/store_session")
+async def store_session(data: SessionData):
+    """
+    Called to store the session history.
+    """
+    # conversation_json = json.dumps([msg.dict() for msg in data.conversation_history])
+    store_conversation(data.session_id, data.conversation_history)
+    
+    return "Conversation history stored successfully"
 
 @app.post("/model_response")
-async def model_response(query: Query):
+async def model_response(
+    video_id: str = Form(...),
+    text_query: str = Form(...),
+    image_query: Optional[UploadFile] = File(None)
+):
     """
     Called after chat query. Will check cache and proceed.
     """
-    cache = get_cache_by_video(query.session_id)
-
-    if cache:
-        return {
-            "message": "Cache found",
-            "cache": cache,
-        }
-    
-    # Simulate generating a new cache
-    new_cache_id = str(uuid.uuid4())
-    ttl = "1h"
-
-    # Store new cache entry
-    store_context_cache(new_cache_id, query.session_id, ttl)
-
-    return {
-        "message": "New cache generated",
-        "cache_id": new_cache_id,
-        "session_id": query.session_id
-    }
+    image_query = await image_query.read() if image_query else None
+    response = llm_response(video_id, text_query, image_query)
+    return response
