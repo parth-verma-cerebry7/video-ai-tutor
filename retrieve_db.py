@@ -8,6 +8,14 @@ from create_cache import Caching
 with open("config.toml", "r") as f:
     config = toml.load(f)
 
+import logging
+
+# Set up basic configuration
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(message)s'
+)
+
 DB_PATH = 'video_editor.db'
 
 def get_session(session_id: int) -> Optional[str]:
@@ -36,7 +44,7 @@ def is_cache_expired(expires_at) -> bool:
     return datetime.now(timezone.utc) > expires_at
 
 def create_new_cache_for_video(video_file_name: str,  model: str, ttl: str) -> dict:
-    
+    logging.info("Creating new cache for video_id: %s")
     cache_handler = Caching(video_file_name=video_file_name, model=model, ttl=ttl)
 
     cache_handler.upload_video_file()
@@ -46,24 +54,29 @@ def create_new_cache_for_video(video_file_name: str,  model: str, ttl: str) -> d
     return cache_id
 
 def get_cache_by_video(video_id: int):
+    logging.info("Starts extracting cache for video from db")
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
 
     cursor.execute("""
-        SELECT cache_id, expires_at
+        SELECT cache_id
         FROM context_cache
         WHERE video_id = ?
     """, (video_id,))
 
     row = cursor.fetchone()
+    logging.info("Row fetched from db: %s", row)
     conn.close()
     
     # No cache exists
+    cache_id = None
     if not row:
+        logging.info("No cache exists for video_id")
         cache_id = create_new_cache_for_video(video_id, config['model'], config['ttl'])
 
     # Check if expired
-    if is_cache_expired(row[1]):
-        create_new_cache_for_video(video_id, config['model'], config['ttl'])
+    # if is_cache_expired(row[1]):
+    #     logging.info("Cache expired for video_id")
+    #     create_new_cache_for_video(video_id, config['model'], config['ttl'])
 
     return cache_id

@@ -18,8 +18,7 @@ CREATE TABLE IF NOT EXISTS context_cache (
     video_id TEXT PRIMARY KEY,
     cache_id TEXT NOT NULL,
     generated_at DATETIME NOT NULL,
-    expires_at DATETIME NOT NULL,
-    ttl TEXT NOT NULL,
+    ttl TEXT NOT NULL
 );
 """
 

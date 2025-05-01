@@ -33,3 +33,23 @@ def store_context_cache(video_id: str, cache_id: str, ttl: str):
     conn.close()
     print(f"Cache stored for video {video_id} with cache ID {cache_id} and TTL {ttl}")
 
+# ...existing code...
+
+def clear_context_cache(video_id: str):
+    """
+    Clears the cache for a specific video ID from the context_cache table.
+    """
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+    cursor.execute(
+        "DELETE FROM context_cache WHERE video_id = ?",
+        (video_id,)
+    )
+    conn.commit()
+    conn.close()
+    print(f"Cache cleared for video {video_id}")
+
+# Example usage:
+# clear_context_cache("BigBuckBunny_320x180.mp4")
+
+# store_context_cache("BigBuckBunny_320x180.mp4", "cachedContents/lwyavvattg0b", "180s")

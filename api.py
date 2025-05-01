@@ -1,11 +1,31 @@
-import json
+import json, time
 from fastapi import FastAPI, Form, File, UploadFile
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from retrieve_db import get_session, store_conversation
 from main import llm_response
 from typing import Optional
+import logging
+
+# Set up basic configuration
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(message)s'
+)
 
 app = FastAPI()
+
+origins = [
+    "http://127.0.0.1:3000",
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 class SessionData(BaseModel):
     session_id: int
@@ -41,9 +61,16 @@ async def model_response(
     text_query: str = Form(...),
     image_query: Optional[UploadFile] = File(None)
 ):
-    """
-    Called after chat query. Will check cache and proceed.
-    """
+    logging.info(f"Received Query from Frontend")
+    # return {"message": "backend se response"}
     image_query = await image_query.read() if image_query else None
+
+    if image_query is None: 
+        logging.info(f"Image query is None")
+    else:
+        logging.info(f"Image Exists")
+
+    logging.info("Starts calling the llm_response function")
     response = llm_response(video_id, text_query, image_query)
-    return response
+    logging.info("Finished calling the llm_response function")
+    return {"message": response}
