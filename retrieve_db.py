@@ -47,7 +47,7 @@ def create_new_cache_for_video(video_file_name: str,  model: str, ttl: str) -> d
     logging.info("Creating new cache for video_id: %s")
     cache_handler = Caching(video_file_name=video_file_name, model=model, ttl=ttl)
 
-    cache_handler.upload_video_file()
+    # cache_handler.upload_video_file()
     cache_id = cache_handler.create_cache()
 
     store_context_cache(video_file_name, cache_id, ttl)

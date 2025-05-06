@@ -3,3 +3,4 @@ venv/
 video_editor.db
 *.mp4
 __pycache__/
+cerebryai*

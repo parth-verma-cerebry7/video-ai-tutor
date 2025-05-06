@@ -1,4 +1,5 @@
-import json, time
+# python -m uvicorn api:app --reload
+# $env:GOOGLE_APPLICATION_CREDENTIALS=C:\Users\parth\Desktop\Cerebry\video-ai-tutor\backend\cerebryai-1cf9ad8980f2.json
 from fastapi import FastAPI, Form, File, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
@@ -12,11 +13,13 @@ logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(message)s'
 )
+import os
 
+os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = r"C:\Users\parth\Desktop\Cerebry\video-ai-tutor\backend\cerebryai-1cf9ad8980f2.json"
 app = FastAPI()
 
 origins = [
-    "http://127.0.0.1:3000",
+    "http://localhost:3000",
 ]
 
 app.add_middleware(
@@ -68,9 +71,10 @@ async def model_response(
     if image_query is None: 
         logging.info(f"Image query is None")
     else:
+        logging.info(f"Type of image query: {type(image_query)}")
         logging.info(f"Image Exists")
 
-    logging.info("Starts calling the llm_response function")
     response = llm_response(video_id, text_query, image_query)
+    logging.info(f"Response from LLM: {response}")
     logging.info("Finished calling the llm_response function")
     return {"message": response}

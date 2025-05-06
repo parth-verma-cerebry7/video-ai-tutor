@@ -12,12 +12,13 @@ logging.basicConfig(
 with open("config.toml", "r") as f:
     config = toml.load(f)
 
-def llm_response(video_id: str, text_query: str, image_query: str = None) -> str:
+def llm_response(video_id: str, text_query: str, image_query: bytes = None) -> str:
 
-    logging.info("Starts to look for cache for video_id: %s", video_id)
+    # logging.info("Starts to look for cache for video_id: %s", video_id)
     # cache_id = get_cache_by_video(video_id)
 
     caching = Caching(video_file_name=video_id, model=config['model'], ttl=config['ttl'])
 
-    response = caching.model_response("abcd", text_query=text_query, image_query=image_query)
+    logging.info("Caching object created")
+    response = caching.model_response(video_uri=video_id, text_query=text_query, image_query=image_query, cache_id="cache_id")
     return response
