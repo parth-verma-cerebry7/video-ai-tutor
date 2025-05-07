@@ -40,11 +40,12 @@ class SessionData(BaseModel):
 async def root():
     return {"message": "Backend started to run"}
 
-@app.get("/session/{session_id}")
-async def fetch_session(session_id: int):
+@app.post("/session")
+async def fetch_session(session_id: str = Form(...)):
     """
     Called first to load full conversation history.
     """
+    logging.info(f"Received session ID: {session_id}")
     history = get_session(session_id)
     
     return {"session_id": session_id, "conversation_history": history}

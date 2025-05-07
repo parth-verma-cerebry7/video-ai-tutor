@@ -15,6 +15,7 @@ def store_session(session_id: int, conversation_history : Optional[str]) -> int:
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
 
+    logging.info("Storing session in db")
     if conversation_history is None: conversation_history=json.dumps([])  # Initialize with an empty list
     cursor.execute(
         "INSERT INTO session (session_id, conversation_history) VALUES (?, ?)",
@@ -23,6 +24,7 @@ def store_session(session_id: int, conversation_history : Optional[str]) -> int:
 
     conn.commit()
     conn.close()
+    logging.info("Session_id stored successfully")
 
     return session_id
 

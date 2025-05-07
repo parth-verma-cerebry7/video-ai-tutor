@@ -7,7 +7,7 @@ cursor = conn.cursor()
 # Define the session table schema
 create_table_session = """
 CREATE TABLE IF NOT EXISTS session (
-    session_id INTEGER PRIMARY KEY,
+    session_id TEXT PRIMARY KEY,
     conversation_history TEXT
 );
 """

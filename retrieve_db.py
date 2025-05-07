@@ -19,6 +19,7 @@ logging.basicConfig(
 DB_PATH = 'video_editor.db'
 
 def get_session(session_id: int) -> Optional[str]:
+    logging.info("Fetching information from db")
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
     cursor.execute("SELECT conversation_history FROM session WHERE session_id = ?", (session_id,))
@@ -26,6 +27,7 @@ def get_session(session_id: int) -> Optional[str]:
     conn.close()
 
     if result is None:
+        logging.info("Session_id not found in db")
         store_session(session_id, None)
         return json.dumps([])  # Return empty conversation history if not found
     
