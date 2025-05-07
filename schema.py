@@ -22,9 +22,17 @@ CREATE TABLE IF NOT EXISTS context_cache (
 );
 """
 
+create_table_store_users='''
+CREATE TABLE IF NOT EXISTS users (
+    user_id TEXT PRIMARY KEY,
+    password TEXT NOT NULL
+);
+'''
+
 # Execute the CREATE TABLE queries
 cursor.execute(create_table_session)
 cursor.execute(create_table_context_cache)
+cursor.execute(create_table_store_users)
 
 # Commit the changes and close the connection
 conn.commit()

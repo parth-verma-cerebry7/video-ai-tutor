@@ -8,7 +8,7 @@ from retrieve_db import get_session, store_conversation
 from main import llm_response
 from typing import Optional
 import logging
-
+import store_db
 # Set up basic configuration
 logging.basicConfig(
     level=logging.INFO,
@@ -78,4 +78,14 @@ async def model_response(
     response = llm_response(video_id, text_query, image_query)
     logging.info(f"Response from LLM: {response}")
     logging.info("Finished calling the llm_response function")
+    return {"message": response}
+
+@app.post("/validate_user")
+async def validate_user(
+    email: str = Form(...),
+    password: str = Form(...)
+):
+    logging.info(f"Received user validation request")
+    response = store_db.validate_user(email, password)
+    logging.info(f"Response from user validation: {response}")
     return {"message": response}

@@ -1,6 +1,13 @@
 import sqlite3, json
 from datetime import datetime, timezone
 from typing import Optional
+import logging
+
+# Set up basic configuration
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(message)s'
+)
 
 DB_PATH = 'video_editor.db'
 
@@ -48,6 +55,42 @@ def clear_context_cache(video_id: str):
     conn.commit()
     conn.close()
     print(f"Cache cleared for video {video_id}")
+
+
+def store_user(user_id: str, password: str):
+    logging.info("Starts storing user")
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+    cursor.execute(
+        """
+        INSERT INTO users (user_id, password)
+        VALUES (?, ?)
+        """,
+        (user_id, password)
+    )
+    conn.commit()
+    conn.close()
+    logging.info("User stored successfully")
+
+def validate_user(user_id: str, password: str) -> bool:
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+    cursor.execute(
+        """
+        SELECT * FROM users WHERE user_id = ?
+        """,
+        (user_id,)
+    )
+    result = cursor.fetchone()
+    conn.close()
+
+    # check if entry is found and the password amtches then return true elsr return false and if entry if not found then store_user is called
+    if result is None:
+        logging.info(f"User not found, storing new user")
+        store_user(user_id, password)
+        return True
+    else:
+        return result[1] == password
 
 # Example usage:
 # clear_context_cache("BigBuckBunny_320x180.mp4")
