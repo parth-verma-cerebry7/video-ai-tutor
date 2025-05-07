@@ -105,7 +105,7 @@ class Caching:
         try:
             contents = [text_query]
             contents.append(Part.from_uri(
-                file_uri=video_uri,
+                file_uri="gs://video_ai_tutor/GCSE-Physics-Reflection.mp4",
                 mime_type="video/mp4"
             ))
             if image_query:

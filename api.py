@@ -1,5 +1,6 @@
 # python -m uvicorn api:app --reload
 # $env:GOOGLE_APPLICATION_CREDENTIALS=C:\Users\parth\Desktop\Cerebry\video-ai-tutor\backend\cerebryai-1cf9ad8980f2.json
+# C:\Users\parth\Desktop\Cerebry\video-ai-tutor\backend\venv\Scripts\python.exe -m pip freeze > requirements.txt
 from fastapi import FastAPI, Form, File, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
