@@ -7,6 +7,7 @@ os.environ["GOOGLE_CLOUD_LOCATION"] = REGION
 os.environ["GOOGLE_GENAI_USE_VERTEXAI"] = "true"
 os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = r"C:\Users\parth\Desktop\Cerebry\video-ai-tutor\backend\cerebryai-b45725179a93.json"
 
+import prompts
 from google import genai
 from google.genai import types
 from google.genai.types import Content, CreateCachedContentConfig, Part, HttpOptions
@@ -30,9 +31,7 @@ class Caching:
         self.ttl = ttl
         self.video_file = None
         self.cache=None
-        self.system_instruction = '''
-            You are an expert video analyzer, and your job is to answer the user's query based on the video file you have access to.
-        '''
+        self.system_instruction = prompts.SystemPrompt
 
 
     def upload_video_file(self):
@@ -105,7 +104,7 @@ class Caching:
         try:
             contents = [text_query]
             contents.append(Part.from_uri(
-                file_uri="gs://video_ai_tutor/GCSE-Physics-Reflection.mp4",
+                file_uri=video_uri,
                 mime_type="video/mp4"
             ))
             if image_query:
@@ -114,6 +113,7 @@ class Caching:
             response = self.client.models.generate_content(
                 model=self.model,
                 contents = contents,
+                config=types.GenerateContentConfig(system_instruction=self.system_instruction),
                 # config=types.GenerateContentConfig(cached_content=cache_id)
             )
 
