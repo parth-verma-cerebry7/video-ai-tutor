@@ -1,4 +1,4 @@
-import sqlite3, json
+import sqlite3, json, base64
 from typing import Optional
 import uuid
 from store_db import store_session, store_context_cache
@@ -18,7 +18,7 @@ logging.basicConfig(
 
 DB_PATH = 'video_editor.db'
 
-def get_session(session_id: int) -> Optional[str]:
+def get_session(session_id: str) -> Optional[str]:
     logging.info("Fetching information from db")
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
@@ -33,10 +33,29 @@ def get_session(session_id: int) -> Optional[str]:
     
     return result[0]
 
-def store_conversation(session_id: int, conversation_history: str):
+def store_conversation(session_id: int, model_response: str, text_query: str, image_query: Optional[bytes] = None):
+    logging.info("Getting the previous conversation")
+    conversation = get_session(session_id) 
+
+    logging.info("Converts it into json")
+    try:
+        conversation = json.loads(conversation)
+    except json.JSONDecodeError:
+        logging.error("Failed to decode JSON, initializing conversation as empty list")
+        conversation = []
+
+    modal = {
+        "text_query": text_query,
+        "model_response": model_response,
+        "image_query": base64.b64encode(image_query).decode('utf-8') if image_query else None
+    }
+
+    conversation.append(modal)
+    updated_conversation = json.dumps(conversation)
+
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
-    cursor.execute("UPDATE session SET conversation_history = ? WHERE session_id = ?", (conversation_history, session_id))
+    cursor.execute("UPDATE session SET conversation_history = ? WHERE session_id = ?", (updated_conversation, session_id))
     conn.commit()
     conn.close()
     return session_id

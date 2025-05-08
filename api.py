@@ -50,24 +50,16 @@ async def fetch_session(session_id: str = Form(...)):
     
     return {"session_id": session_id, "conversation_history": history}
 
-@app.post("/store_session")
-async def store_session(data: SessionData):
-    """
-    Called to store the session history.
-    """
-    # conversation_json = json.dumps([msg.dict() for msg in data.conversation_history])
-    store_conversation(data.session_id, data.conversation_history)
-    
-    return "Conversation history stored successfully"
 
 @app.post("/model_response")
 async def model_response(
     video_id: str = Form(...),
+    session_id: str = Form(...),
     text_query: str = Form(...),
     image_query: Optional[UploadFile] = File(None)
 ):
     logging.info(f"Received Query from Frontend")
-    # return {"message": "backend se response"}
+
     image_query = await image_query.read() if image_query else None
 
     if image_query is None: 
@@ -79,6 +71,10 @@ async def model_response(
     response = llm_response(video_id, text_query, image_query)
     logging.info(f"Response from LLM: {response}")
     logging.info("Finished calling the llm_response function")
+
+    logging.info("Lets begin with storing the one by one conversation")
+    store_conversation(session_id, response, text_query, image_query)
+
     return {"message": response}
 
 @app.post("/validate_user")

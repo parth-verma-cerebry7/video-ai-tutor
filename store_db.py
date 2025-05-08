@@ -11,7 +11,7 @@ logging.basicConfig(
 
 DB_PATH = 'video_editor.db'
 
-def store_session(session_id: int, conversation_history : Optional[str]) -> int:
+def store_session(session_id: str, conversation_history : Optional[str]) -> int:
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
 
