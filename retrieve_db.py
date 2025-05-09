@@ -1,10 +1,11 @@
-import sqlite3, json, base64
+import sqlite3, json, base64, os
 from typing import Optional
 import uuid
 from store_db import store_session, store_context_cache
 from datetime import datetime, timedelta, timezone
 import toml
 from create_cache import Caching
+
 with open("config.toml", "r") as f:
     config = toml.load(f)
 
@@ -17,6 +18,9 @@ logging.basicConfig(
 )
 
 DB_PATH = 'video_editor.db'
+if os.path.exists('/app'):  
+    DB_PATH = '/app/db_data/video_editor.db' 
+
 
 def get_session(session_id: str) -> Optional[str]:
     logging.info("Fetching information from db")

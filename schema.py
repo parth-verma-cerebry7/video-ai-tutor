@@ -1,7 +1,13 @@
 import sqlite3
+import os
+
+if os.path.exists("/app"):  # running inside Docker
+    DB_PATH = "/app/db_data/video_editor.db"
+else:  # local environment
+    DB_PATH = os.path.join(os.getcwd(), "db_data", "video_editor.db")
 
 # Connect to the database (or create it if it doesn't exist)
-conn = sqlite3.connect('video_editor.db')
+conn = sqlite3.connect(DB_PATH)
 cursor = conn.cursor()
 
 # Define the session table schema

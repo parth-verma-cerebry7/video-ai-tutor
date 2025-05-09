@@ -1,12 +1,18 @@
 import os, time, toml, logging
 PROJECT_ID = "cerebryai"
 REGION = "us-central1"
-
+from google.cloud import storage
 os.environ["GOOGLE_CLOUD_PROJECT"] = PROJECT_ID
 os.environ["GOOGLE_CLOUD_LOCATION"] = REGION
 os.environ["GOOGLE_GENAI_USE_VERTEXAI"] = "true"
-os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = r"C:\Users\parth\Desktop\Cerebry\video-ai-tutor\backend\cerebryai-b45725179a93.json"
-
+if os.path.exists("/app/credentials"):
+    # Docker or production environment
+    os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "/app/credentials/cerebryai-1cf9ad8980f2.json"
+else:
+    # Local environment (Windows)
+    os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "./credentials/cerebryai-1cf9ad8980f2.json"
+# os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = r"C:\Users\parth\Desktop\Cerebry\video-ai-tutor\backend\cerebryai-b45725179a93.json"
+client = storage.Client()
 import prompts
 from google import genai
 from google.genai import types

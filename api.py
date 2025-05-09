@@ -16,7 +16,6 @@ logging.basicConfig(
 )
 import os
 
-os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = r"C:\Users\parth\Desktop\Cerebry\video-ai-tutor\backend\cerebryai-1cf9ad8980f2.json"
 app = FastAPI()
 
 origins = [

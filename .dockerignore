@@ -1,0 +1,30 @@
+# Python cache
+__pycache__/
+
+# Virtual environments
+venv/
+.env
+
+# DB files
+video_editor.db
+
+# Video and media files
+*.mp4
+
+# Git
+.git/
+.gitignore
+
+# IDE & Editor settings
+.vscode/
+.idea/
+
+# Logs
+*.log
+
+# Caching & temp
+*.cache
+*.tmp
+
+# Service files
+*.json

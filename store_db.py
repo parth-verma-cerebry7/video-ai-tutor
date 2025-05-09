@@ -1,4 +1,4 @@
-import sqlite3, json
+import sqlite3, json, os
 from datetime import datetime, timezone
 from typing import Optional
 import logging
@@ -10,6 +10,8 @@ logging.basicConfig(
 )
 
 DB_PATH = 'video_editor.db'
+if os.path.exists('/app'):  
+    DB_PATH = '/app/db_data/video_editor.db' 
 
 def store_session(session_id: str, conversation_history : Optional[str]) -> int:
     conn = sqlite3.connect(DB_PATH)

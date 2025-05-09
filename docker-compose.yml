@@ -1,0 +1,11 @@
+version: '3'
+services:
+  fastapi:
+    build: .
+    volumes:
+      - ./db_data:/app/db_data  # Mount volume for persistence
+      - ./credentials:/app/credentials  # Mount volume for credentials (for local dev only)
+    ports:
+      - "8000:8000"
+    environment:
+      - GOOGLE_APPLICATION_CREDENTIALS=/app/credentials/cerebryai-1cf9ad8980f2.json  # Local dev
