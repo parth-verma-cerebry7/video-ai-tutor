@@ -92,45 +92,23 @@ class Caching:
         )
         print('Cache created: ', content_cache.name)
         return content_cache.name
-        # try:
-        #     self.cache = self.client.caches.create(
-        #         model=self.model,
-        #         config=types.CreateCachedContentConfig(
-        #         display_name=self.video_file_name, # used to identify the cache
-        #         system_instruction=(
-        #             'You are an expert video analyzer, and your job is to answer '
-        #             'the user\'s query based on the video file you have access to.'
-        #         ),
-        #         contents=[self.video_file],
-        #         ttl=self.ttl,
-        #         )
-        #     )
-        #     print('Cache created: ', self.cache.name)
-        #     return self.cache.name
-
-        # except Exception as e:
-        #     print(f"Error creating cache: {e}")
-
-
-
-    
+        
+        
     def model_response(self, video_uri: str, text_query: str, image_query: bytes = None, cache_id: str = None) -> str:
+        contents = []
         try:
-            contents = [text_query]
+            if text_query:
+                contents.append(text_query)
+
             contents.append(Part.from_uri(
                 file_uri=video_uri,
                 mime_type="video/mp4"
             ))
+
             if image_query:
                 contents.append(types.Part.from_bytes(data=image_query, mime_type='image/png'))
 
             response = self.chat.send_message(contents)
-            # response = self.client.models.generate_content(
-            #     model=self.model,
-            #     contents = contents,
-            #     config=types.GenerateContentConfig(system_instruction=self.system_instruction),
-            #     # config=types.GenerateContentConfig(cached_content=cache_id)
-            # )
 
             return response.text
         
