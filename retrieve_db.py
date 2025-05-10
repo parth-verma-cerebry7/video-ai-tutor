@@ -17,9 +17,10 @@ logging.basicConfig(
     format='%(asctime)s - %(message)s'
 )
 
-DB_PATH = 'video_editor.db'
-if os.path.exists('/app'):  
-    DB_PATH = '/app/db_data/video_editor.db' 
+if os.path.exists("/app"):  # running inside Docker
+    DB_PATH = "/app/db_data/video_editor.db"
+else:  # local environment
+    DB_PATH = os.path.join(os.getcwd(), "db_data", "video_editor.db")
 
 
 def get_session(session_id: str) -> Optional[str]:

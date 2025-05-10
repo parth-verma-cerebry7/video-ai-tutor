@@ -18,13 +18,15 @@ import os
 
 app = FastAPI()
 
-origins = [
-    "http://localhost:3000",
-]
+# origins = [
+#     "http://localhost:3000",
+#     "https://v0-video-ai-tutor-1m98.vercel.app/",
+
+# ]
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

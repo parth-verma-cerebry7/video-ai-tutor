@@ -9,9 +9,10 @@ logging.basicConfig(
     format='%(asctime)s - %(message)s'
 )
 
-DB_PATH = 'video_editor.db'
-if os.path.exists('/app'):  
-    DB_PATH = '/app/db_data/video_editor.db' 
+if os.path.exists("/app"):  # running inside Docker
+    DB_PATH = "/app/db_data/video_editor.db"
+else:  # local environment
+    DB_PATH = os.path.join(os.getcwd(), "db_data", "video_editor.db")
 
 def store_session(session_id: str, conversation_history : Optional[str]) -> int:
     conn = sqlite3.connect(DB_PATH)
@@ -90,9 +91,10 @@ def validate_user(user_id: str, password: str) -> bool:
 
     # check if entry is found and the password amtches then return true elsr return false and if entry if not found then store_user is called
     if result is None:
-        logging.info(f"User not found, storing new user")
-        store_user(user_id, password)
-        return True
+        return False
+        # logging.info(f"User not found, storing new user")
+        # store_user(user_id, password)
+        # return True
     else:
         return result[1] == password
 

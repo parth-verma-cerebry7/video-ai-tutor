@@ -2,17 +2,24 @@ import os, time, toml, logging
 PROJECT_ID = "cerebryai"
 REGION = "us-central1"
 from google.cloud import storage
+
 os.environ["GOOGLE_CLOUD_PROJECT"] = PROJECT_ID
 os.environ["GOOGLE_CLOUD_LOCATION"] = REGION
 os.environ["GOOGLE_GENAI_USE_VERTEXAI"] = "true"
-if os.path.exists("/app/credentials"):
-    # Docker or production environment
+
+if os.environ.get("K_SERVICE"):  # Running on Cloud Run
+    print("Running on Cloud Run - using default service account")
+    # No need to set GOOGLE_APPLICATION_CREDENTIALS
+elif os.path.exists("/app/credentials"):
+    print("Running in Docker - setting credentials")
     os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "/app/credentials/cerebryai-1cf9ad8980f2.json"
 else:
-    # Local environment (Windows)
+    print("Running locally - setting credentials")
     os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "./credentials/cerebryai-1cf9ad8980f2.json"
 # os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = r"C:\Users\parth\Desktop\Cerebry\video-ai-tutor\backend\cerebryai-b45725179a93.json"
+
 client = storage.Client()
+
 import prompts
 from google import genai
 from google.genai import types
@@ -34,6 +41,7 @@ class Caching:
         self.video_file_name = video_file_name
         self.model = model
         self.client = genai.Client(http_options=HttpOptions(api_version="v1"))
+        self.chat = self.client.chats.create(model=model, config=types.GenerateContentConfig(system_instruction=prompts.SystemPrompt))
         self.ttl = ttl
         self.video_file = None
         self.cache=None
@@ -116,12 +124,13 @@ class Caching:
             if image_query:
                 contents.append(types.Part.from_bytes(data=image_query, mime_type='image/png'))
 
-            response = self.client.models.generate_content(
-                model=self.model,
-                contents = contents,
-                config=types.GenerateContentConfig(system_instruction=self.system_instruction),
-                # config=types.GenerateContentConfig(cached_content=cache_id)
-            )
+            response = self.chat.send_message(contents)
+            # response = self.client.models.generate_content(
+            #     model=self.model,
+            #     contents = contents,
+            #     config=types.GenerateContentConfig(system_instruction=self.system_instruction),
+            #     # config=types.GenerateContentConfig(cached_content=cache_id)
+            # )
 
             return response.text
         
